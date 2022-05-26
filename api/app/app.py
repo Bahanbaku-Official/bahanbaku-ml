@@ -5,8 +5,15 @@ from tensorflow.keras.models import load_model
 
 app = Flask(__name__)
 
-food_classifier = load_model('../model_25_classes',compile = False)
-food_list = ["apple_pie","bakso","bibimbap","bread_pudding","cheesecake","chicken_curry","chicken_wings","chocolate_cake","french_fries","gado","garlic_bread","gnocchi","gudeg","hamburger","omelette","pizza","rendang","samosa","sate","shrimp_and_grits","strawberry_shortcake","tacos","tiramisu","tuna_tartare","waffles"]
+FOOD_CLASSIFIER = load_model('../checkpoint_25_classes',compile = False) # need to load checkpoint_25_classes folder from google drive to VM first
+FOOD_NAMES = []
+FOOD_IMG_LINKS = []
+
+with open('./food-mapping.txt','r') as data:
+    name_and_links = data.readlines()
+    name_and_links.sort()
+    FOOD_NAMES = [food.strip().split('|')[0] for food in name_and_links]
+    FOOD_IMG_LINKS = [food.strip().split('|')[1] for food in name_and_links]
 
 @app.route('/')
 def hello_world():
@@ -20,8 +27,8 @@ def upload():
     img_array = np.array(img)
     img_array = np.expand_dims(img_array, axis=0)
 
-    pred = food_classifier.predict(img_array)
-    food_list.sort()
+    pred = FOOD_CLASSIFIER.predict(img_array)
+    FOOD_NAMES.sort()
     top_n = 3
     indices = np.argpartition(pred, -top_n)[-top_n:]
     indices = np.squeeze(indices)
@@ -30,16 +37,19 @@ def upload():
     response = {
         [
             {
-                'food': food_list[indices[0]],
-                'probability': pred[0][indices[0]]
+                'food': FOOD_NAMES[indices[0]],
+                'probability': pred[0][indices[0]],
+                'image_link': FOOD_IMG_LINKS[indices[0]]
             },
             {
-                'food': food_list[indices[1]],
-                'probability': pred[0][indices[1]]
+                'food': FOOD_NAMES[indices[1]],
+                'probability': pred[0][indices[1]],
+                'image_link': FOOD_IMG_LINKS[indices[1]]
             },
             {
-                'food': food_list[indices[2]],
-                'probability': pred[0][indices[2]]
+                'food': FOOD_NAMES[indices[2]],
+                'probability': pred[0][indices[2]],
+                'image_link': FOOD_IMG_LINKS[indices[2]]
             }
         ]
     }
