@@ -28,9 +28,20 @@ def upload():
     indices = np.flip(indices)
 
     response = {
-        food_list[indices[0]]: pred[0][indices[0]],
-        food_list[indices[1]]: pred[0][indices[1]],
-        food_list[indices[2]]: pred[0][indices[2]],
+        [
+            {
+                'food': food_list[indices[0]],
+                'probability': pred[0][indices[0]]
+            },
+            {
+                'food': food_list[indices[1]],
+                'probability': pred[0][indices[1]]
+            },
+            {
+                'food': food_list[indices[2]],
+                'probability': pred[0][indices[2]]
+            }
+        ]
     }
 
     img.close()
