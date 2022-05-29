@@ -5,11 +5,11 @@ from tensorflow.keras.models import load_model
 
 app = Flask(__name__)
 
-FOOD_CLASSIFIER = load_model('../checkpoint_25_classes',compile = False) # need to load checkpoint_25_classes folder from google drive to VM first
+FOOD_CLASSIFIER = load_model('api/model_25_classes',compile = False) # need to load checkpoint_25_classes folder from google drive to VM first
 FOOD_NAMES = []
 FOOD_IMG_LINKS = []
 
-with open('./food-mapping.txt','r') as data:
+with open('api/app/food-mapping.txt','r') as data:
     name_and_links = data.readlines()
     name_and_links.sort()
     FOOD_NAMES = [food.strip().split('|')[0] for food in name_and_links]
@@ -35,20 +35,20 @@ def upload():
     indices = np.flip(indices)
 
     response = {
-        [
+        "results": [
             {
                 'food': FOOD_NAMES[indices[0]],
-                'probability': pred[0][indices[0]],
+                'probability': str(pred[0][indices[0]]),
                 'image_link': FOOD_IMG_LINKS[indices[0]]
             },
             {
                 'food': FOOD_NAMES[indices[1]],
-                'probability': pred[0][indices[1]],
+                'probability': str(pred[0][indices[1]]),
                 'image_link': FOOD_IMG_LINKS[indices[1]]
             },
             {
                 'food': FOOD_NAMES[indices[2]],
-                'probability': pred[0][indices[2]],
+                'probability': str(pred[0][indices[2]]),
                 'image_link': FOOD_IMG_LINKS[indices[2]]
             }
         ]
@@ -56,3 +56,5 @@ def upload():
 
     img.close()
     return jsonify(response)
+
+app.run()
