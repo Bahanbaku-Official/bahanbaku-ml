@@ -1,3 +1,4 @@
+from os import link
 from PIL import Image
 import numpy as np
 from flask import Flask, jsonify, request
@@ -34,27 +35,32 @@ def upload():
     indices = np.squeeze(indices)
     indices = np.flip(indices)
 
-    response = {
-        "results": [
-            {
-                'food': FOOD_NAMES[indices[0]],
-                'probability': str(pred[0][indices[0]]),
-                'image_link': FOOD_IMG_LINKS[indices[0]]
-            },
-            {
-                'food': FOOD_NAMES[indices[1]],
-                'probability': str(pred[0][indices[1]]),
-                'image_link': FOOD_IMG_LINKS[indices[1]]
-            },
-            {
-                'food': FOOD_NAMES[indices[2]],
-                'probability': str(pred[0][indices[2]]),
-                'image_link': FOOD_IMG_LINKS[indices[2]]
-            }
-        ]
-    }
+    response_list = [
+        {
+            'food': FOOD_NAMES[indices[0]].replace('_', ' '),
+            'probability': pred[0][indices[0]],
+            'image_link': FOOD_IMG_LINKS[indices[0]]
+        },
+        {
+            'food': FOOD_NAMES[indices[1]].replace('_', ' '),
+            'probability': pred[0][indices[1]],
+            'image_link': FOOD_IMG_LINKS[indices[1]]
+        },
+        {
+            'food': FOOD_NAMES[indices[2]].replace('_', ' '),
+            'probability': pred[0][indices[2]],
+            'image_link': FOOD_IMG_LINKS[indices[2]]
+        }
+    ]
+
+    response_list.sort(key=lambda obj : obj['probability'], reverse=True)
+
+    response_list = [{ 'food': item['food'], 'probability': str(item['probability']), 'image_link': item['image_link']} for item in response_list]
+
+    response_obj = { 'result': response_list }
 
     img.close()
-    return jsonify(response)
+    
+    return jsonify(response_obj)
 
 app.run()
