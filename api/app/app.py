@@ -24,6 +24,7 @@ def hello_world():
 def upload():
     image = request.files['gambar']
     img = Image.open(image)
+    img = img.resize((150,150))
 
     img_array = np.array(img)
     img_array = np.expand_dims(img_array, axis=0)
